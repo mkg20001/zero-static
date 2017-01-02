@@ -1,5 +1,5 @@
 # zero-static
-Serve ZeroNet Zites (almost) like normal ones. Edit
+Serve ZeroNet Zites (almost) like normal ones.
 
 **IMPORTANT: This project isn't finished yet and might be very insecure**
 
