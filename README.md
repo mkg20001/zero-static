@@ -10,7 +10,7 @@ Then run the Build script: `bash build.sh yoursite.bit pack cleanbuild` (This ge
 
 Prepare the machine to use: `apt install python python-dev python-pip` and `pip install msgpack-python gevent`
 
-Now just extract the tar: `mkdir -p ZeroStatic;tar xvfz ../ZeroStatic.tar.gz`
+Now just extract the tar: `mkdir -p ZeroStatic;cd ZeroStatic;tar xvfz ../ZeroStatic.tar.gz`
 
 And run `bash start.sh`
 
