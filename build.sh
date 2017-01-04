@@ -61,17 +61,22 @@ main=$(dirname $(readlink -f $0))
 inject=$(dir -w 1 $main/plugins)
 patches=$(dir -w 1 $main/patches)
 
-if ! [ -e $main/ZeroNet ]; then
-  echo "Please clone ZeroNet first into '$main/ZeroNet'"
-  exit 2
-fi
-
 zerodir="$PWD/ZeroStatic"
 zerosrc="$main/ZeroNet"
 
 log() {
   echo "[$1] $2"
 }
+
+if ! [ -e $main/ZeroNet ]; then
+  log "clone" "https://github.com/HelloZeroNet/ZeroNet => $main/ZeroNet"
+  git clone https://github.com/HelloZeroNet/ZeroNet $main/ZeroNet
+fi
+
+if ! [ -e $main/ZeroNet ]; then
+  log "ERROR" "Couldn't clone ZeroNet into $main/ZeroNet (Is git installed?)" 1>&2
+  exit 2
+fi
 
 if [ -e $zerodir/data ] && ! $cleanbuild; then
   log "backup" "data directory"
@@ -105,10 +110,12 @@ else
   fport=15541
 fi
 
-zeroargs="--fileserver_port $fport --batch --language $language --ui_port $uiport --homepage $zite"
-if $debug; then
-  zeroargs="$zeroargs --debug"
-fi
+#zeroargs="--fileserver_port $fport --batch --language $language --ui_port $uiport --homepage $zite"
+zeroconf="[global]
+fileserver_port = $fport
+language = $language
+ui_port = $uiport
+homepage = $zite"
 
 zerocmd="python2 zeronet.py"
 
@@ -134,7 +141,11 @@ if $cleanbuild; then
   done
 fi
 
-echo "$zerocmd $zeroargs" > $zerodir/start.sh
+echo -n "$zeroconf" > $zerodir/zeronet.conf
+echo '#!/bin/bash
+
+cd $(dirname $(readlink -f $0))'"
+$zerocmd"' $@' > $zerodir/start.sh
 
 if $pack; then
   log "pack" "ZeroStatic.tar.gz"
@@ -143,5 +154,11 @@ if $pack; then
 fi
 
 if $debug; then
-  bash $zerodir/start.sh
+  log "debug" "Script dump"
+  cat $zerodir/start.sh
+  log "debug" "Config dump"
+  cat $zerodir/zeronet.conf
+  echo
+  log "debug" "Runing ZeroNet"
+  bash -x $zerodir/start.sh --debug
 fi
